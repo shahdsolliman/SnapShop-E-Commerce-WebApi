@@ -1,0 +1,33 @@
+﻿# === ASP.NET Core / .NET ===
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider/VS Code
+.idea/
+.vscode/
+
+# User secrets (محلي فقط، ميترفعش)
+secrets.json
+
+# Auto-generated files
+*.db
+*.log
+
+# Publish folder
+publish/
+wwwroot/uploads/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.tmp
+
+# Ignore local appsettings overrides
+appsettings.Development.json
