@@ -40,8 +40,9 @@ namespace SnapShop.API.Controllers
             //_brandsRepo = brandsRepo;
             //_categoriesRepo = categoriesRepo;
         }
-
+        
         [ProducesResponseType(typeof(Pagination<ProductToReturnDto>), StatusCodes.Status200OK)]
+        [CachedAttribute(600)]
         [HttpGet]
         public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
@@ -59,6 +60,7 @@ namespace SnapShop.API.Controllers
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [CachedAttribute(600)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -72,6 +74,7 @@ namespace SnapShop.API.Controllers
         }
 
         [ProducesResponseType(typeof(IReadOnlyList<ProductBrand>), StatusCodes.Status200OK)]
+        [CachedAttribute(600)]
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetBrands()
         {
@@ -80,6 +83,7 @@ namespace SnapShop.API.Controllers
         }
 
         [ProducesResponseType(typeof(IReadOnlyList<ProductCategory>), StatusCodes.Status200OK)]
+        [CachedAttribute(600)]
         [HttpGet("categories")]
         public async Task<ActionResult<IReadOnlyList<ProductCategory>>> GetCategories()
         {

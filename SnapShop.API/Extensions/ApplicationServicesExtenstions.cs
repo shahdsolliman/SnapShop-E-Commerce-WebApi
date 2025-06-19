@@ -88,6 +88,7 @@ namespace SnapShop.API.Extensions
             services.AddScoped(typeof(IOrderService), typeof(OrderService));
             services.AddScoped(typeof(ITokenService), typeof(TokenService));
             services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
+            services.AddSingleton<IResponseCacheService, ResponseCacheService>();
             return services;
         }
 
