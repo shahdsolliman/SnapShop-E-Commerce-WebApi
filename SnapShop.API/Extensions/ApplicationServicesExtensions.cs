@@ -126,7 +126,7 @@ namespace SnapShop.API.Extensions
         private static IServiceCollection AddIdentityDbContextServices(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("IdentityConnection");
-            if (string.IsNullOrWhiteSpace(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString) || connectionString.StartsWith("SET_VIA"))
             {
                 // Fallback to DefaultConnection if only one database is provisioned (e.g. on shared hosting)
                 connectionString = configuration.GetConnectionString("DefaultConnection");

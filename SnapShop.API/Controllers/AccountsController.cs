@@ -35,7 +35,9 @@ namespace SnapShop.API.Controllers
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
             if (user == null) return Unauthorized(new ApiResponse(401));
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, lockoutOnFailure: true);
+            if (result.IsLockedOut)
+                return Unauthorized(new ApiResponse(401, "Account is temporarily locked out due to multiple failed login attempts. Please try again later."));
             if (!result.Succeeded) return Unauthorized(new ApiResponse(401));
             return Ok(new UserDto()
             {

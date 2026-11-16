@@ -34,13 +34,15 @@ namespace SnapShop.API.Extensions
 
                 var adminEmail = configuration["AdminUser:Email"];
                 var adminPassword = configuration["AdminUser:Password"];
-                await AppIdentityDbContextSeed.SeedRolesAndAdminAsync(roleManager, userManager, adminEmail, adminPassword);
+                var isProduction = app.Environment.IsProduction();
+                await AppIdentityDbContextSeed.SeedRolesAndAdminAsync(
+                    roleManager, userManager, adminEmail, adminPassword, isProduction);
             }
             catch (Exception ex)
             {
-
                 var logger = loggerFactory.CreateLogger<Program>();
-                logger.LogError(ex, "An error occurred during migration");
+                logger.LogError(ex, "An error occurred during database migration or seeding");
+                throw;
             }
 
             #endregion
