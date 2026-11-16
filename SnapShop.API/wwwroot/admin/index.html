@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="لوحة تحكم SnapShop لصاحب المحل — رفع بضاعة اليوم وإدارة طلبات الزبائن وتتبع الشحن والتوصيل" />
+    <title>لوحة إدارة المحل | SnapShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <main class="container">
+        <!-- ═══════════ LOGIN SECTION ═══════════ -->
+        <section class="login-section" id="loginSection">
+            <div class="login-card card glass">
+                <div class="login-header">
+                    <div class="brand-logo">🏪</div>
+                    <h1 class="title">دخول صاحب المحل</h1>
+                    <p class="subtitle-text">سجل دخولك لرفع بضاعة اليوم وإدارة ومتابعة طلبات الزبائن</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني للوحة الإدارة</label>
+                        <input type="email" id="email" required placeholder="admin@snapshop.com" autocomplete="email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">كلمة المرور</label>
+                        <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password" />
+                    </div>
+                    <button type="submit" class="btn-primary" id="loginSubmitBtn">
+                        <span>تسجيل الدخول</span> 🔐
+                    </button>
+                </form>
+
+                <div class="demo-login-box">
+                    <p>💡 <strong>تجربة سريعة:</strong> الحساب الافتراضي للمسؤول:</p>
+                    <code>admin@snapshop.com / Admin$123</code>
+                    <button type="button" class="btn-demo" id="fillDemoCredentialsBtn">
+                        ⚡ ملء بيانات الدخول تلقائياً
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════ MAIN DASHBOARD SECTION ═══════════ -->
+        <section class="dashboard-section hidden" id="dashboardSection">
+            <!-- Header -->
+            <header class="dashboard-header glass">
+                <div class="header-brand">
+                    <span class="header-icon">🏪</span>
+                    <div>
+                        <h1 class="title">لوحة إدارة المحل</h1>
+                        <span id="adminGreeting" class="admin-greeting">مرحباً بك، صاحب المحل 👋</span>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <a href="/" target="_blank" class="btn-header btn-store" title="فتح واجهة متجر الزبائن في نافذة جديدة">
+                        🛍️ عرض المتجر للزبائن
+                    </a>
+                    <button id="logoutBtn" class="btn-logout" title="تسجيل الخروج">
+                        🚪 تسجيل الخروج
+                    </button>
+                </div>
+            </header>
+
+            <!-- Quick Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card glass">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-details">
+                        <div class="stat-value" id="statsProducts">0</div>
+                        <div class="stat-label">بضاعة اليوم المعروضة</div>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-details">
+                        <div class="stat-value" id="statsOrders">0</div>
+                        <div class="stat-label">إجمالي الطلبات المستلمة</div>
+                    </div>
+                </div>
+                <div class="stat-card glass stat-pending-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-details">
+                        <div class="stat-value" id="statsPending">0</div>
+                        <div class="stat-label">طلبات بانتظار الموافقة</div>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">🚚</div>
+                    <div class="stat-details">
+                        <div class="stat-value" id="statsShipped">0</div>
+                        <div class="stat-label">طلبات قيد الشحن</div>
+                    </div>
+                </div>
+                <div class="stat-card glass stat-sales-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-details">
+                        <div class="stat-value" id="statsSales">0.00</div>
+                        <div class="stat-label">إجمالي المبيعات (ج.م)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" id="tabProductsBtn">
+                    <span>📦</span> بضاعة اليوم ورفع المنتجات
+                </button>
+                <button class="tab-btn" id="tabOrdersBtn">
+                    <span>📋</span> طلبات الزبائن والشحن والتوصيل
+                    <span class="tab-badge" id="pendingOrdersBadge">0</span>
+                </button>
+            </div>
+
+            <!-- ═══════════ TAB 1: PRODUCTS / TODAY'S GOODS ═══════════ -->
+            <div id="tabProductsContent">
+                <!-- Upload Product Card -->
+                <div class="upload-card card glass">
+                    <div class="card-header-row">
+                        <div>
+                            <h2 class="subtitle">📸 رفع بضاعة جديدة لليوم</h2>
+                            <p class="section-desc">ارفع صورة البضاعة مع اسمها وسعرها إن وجد (السعر اختياري ولا يشترط تحديده).</p>
+                        </div>
+                    </div>
+
+                    <form id="productForm">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="image">
+                                    📷 صورة البضاعة <span class="required-star">*</span>
+                                    <small style="color: var(--text-muted); font-weight: normal;">(JPG, PNG, WebP - حتى 10MB)</small>
+                                </label>
+                                <div class="drop-zone" id="dropZone">
+                                    <input type="file" id="image" accept="image/jpeg,image/png,image/webp,image/gif" required />
+                                    <div class="drop-zone-prompt" id="dropZonePrompt">
+                                        <div class="drop-icon">📤</div>
+                                        <strong>اضغط هنا لاختيار صورة البضاعة</strong>
+                                        <p>أو اسحب وأفلت الصورة هنا مباشرة من هاتفك أو جهازك</p>
+                                    </div>
+                                    <div class="image-preview-wrap" id="imagePreviewWrap" style="display: none;">
+                                        <img id="imagePreview" class="image-preview" alt="معاينة صورة البضاعة" />
+                                        <button type="button" class="btn-change-image" id="btnChangeImage">تغيير الصورة 🔄</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="name">
+                                    🏷️ اسم البضاعة / المنتج <span class="required-star">*</span>
+                                </label>
+                                <input type="text" id="name" placeholder="مثال: طقم رياضي فاخر - لون كحلي" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="price">
+                                    💵 سعر البيع (ج.م) <span class="optional-badge">اختياري</span>
+                                </label>
+                                <input type="number" id="price" placeholder="مثال: 250 (اتركه فارغاً إذا كان السعر عند الطلب)" step="0.01" min="0" />
+                                <small class="input-hint">💡 السعر ليس إجبارياً؛ إذا تركته فارغاً سيظهر للمشتري "السعر عند الطلب 💬".</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryId">
+                                    📁 الفئة / القسم
+                                </label>
+                                <select id="categoryId">
+                                    <option value="">جاري التحميل...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="brandId">
+                                    🏷️ الماركة / العلامة
+                                </label>
+                                <select id="brandId">
+                                    <option value="">جاري التحميل...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="description">
+                                    📝 وصف أو تفاصيل إضافية عن البضاعة <span class="optional-badge">اختياري</span>
+                                </label>
+                                <textarea id="description" placeholder="اكتب مقاسات البضاعة، الألوان المتاحة، خامة القماش، أو أي تفاصيل يحتاجها الزبون..." rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="submitProduct" class="btn-primary">
+                                <span>نشر البضاعة في المتجر فوراً</span> 🚀
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Products Table Card -->
+                <div class="products-card card glass">
+                    <div class="card-header-row">
+                        <div>
+                            <h2 class="subtitle">📦 قائمة بضاعة اليوم المعروضة حالياً</h2>
+                            <p class="section-desc">هذه هي البضاعة التي يراها زبائنك الآن في المتجر.</p>
+                        </div>
+                        <button id="refreshProductsBtn" class="btn-secondary" title="إعادة تحميل قائمة البضاعة">
+                            🔄 تحديث القائمة
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th>
+                                    <th>اسم البضاعة</th>
+                                    <th>السعر المعروض</th>
+                                    <th>الفئة</th>
+                                    <th>الماركة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ TAB 2: ORDERS MANAGEMENT ═══════════ -->
+            <div id="tabOrdersContent" class="hidden">
+                <div class="orders-card card glass">
+                    <div class="card-header-row">
+                        <div>
+                            <h2 class="subtitle">📋 طلبات الزبائن والشحن والتوصيل</h2>
+                            <p class="section-desc">تحكم في قبول الطلبات، بدء الشحن مع المندوب، وتأكيد التسليم للزبون.</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button id="refreshOrdersBtn" class="btn-secondary">
+                                🔄 تحديث الطلبات
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Orders Filter & Search Bar -->
+                    <div class="orders-controls glass">
+                        <div class="orders-filter-chips" id="orderFilterChips">
+                            <button class="filter-chip active" data-filter="all">الكل (<span id="countAll">0</span>)</button>
+                            <button class="filter-chip chip-pending" data-filter="pending">⏳ بانتظار الموافقة (<span id="countPending">0</span>)</button>
+                            <button class="filter-chip chip-accepted" data-filter="accepted">✅ تم القبول (<span id="countAccepted">0</span>)</button>
+                            <button class="filter-chip chip-shipped" data-filter="shipped">🚚 قيد الشحن (<span id="countShipped">0</span>)</button>
+                            <button class="filter-chip chip-delivered" data-filter="delivered">📦 تم التسليم (<span id="countDelivered">0</span>)</button>
+                            <button class="filter-chip chip-cancelled" data-filter="cancelled">❌ ملغي (<span id="countCancelled">0</span>)</button>
+                        </div>
+
+                        <div class="orders-search-box">
+                            <input type="text" id="orderSearchInput" placeholder="بحث برقم الطلب، اسم الزبون، أو رقم التليفون..." />
+                            <span class="search-icon">🔍</span>
+                        </div>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="table-responsive">
+                        <table id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>التاريخ</th>
+                                    <th>الزبون وبيانات الاتصال</th>
+                                    <th>عنوان التوصيل</th>
+                                    <th>البضاعة المطلوبة</th>
+                                    <th>طريقة الشحن</th>
+                                    <th>الإجمالي</th>
+                                    <th>الحالة الحالية</th>
+                                    <th>إجراءات مرحلة الطلب السريعة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ═══════════ ORDER DETAILS & INVOICE MODAL ═══════════ -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalOrderTitle">تفاصيل وبوليصة الطلب</h3>
+                <button class="btn-close" id="closeDetailModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="modalOrderBody">
+                <!-- Injected dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="window.print()">🖨️ طباعة الفاتورة</button>
+                <button class="btn-primary" id="closeDetailModalBtn2">إغلاق النافذة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div class="lightbox-overlay" id="lightboxModal">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <img id="lightboxImg" src="" alt="تكبير صورة البضاعة" />
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnapShop | بضاعة اليوم الحصرية والتسوق المباشر</title>
+  <meta name="description" content="تصفح صور بضاعة اليوم الحقيقية في متجرنا واطلب فوراً لتصلك حتى باب منزلك مع متابعة لحظية لحالة الطلب والشحن والتوصيل." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       SITE HEADER
+       ══════════════════════════════════════ -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a href="/" class="logo-wrap" id="logoLink">
+        <div class="logo-badge">🛍️</div>
+        <div class="logo-text">
+          <span>SnapShop</span>
+          <small class="logo-sub">بضاعة اليوم الطازجة</small>
+        </div>
+      </a>
+
+      <div class="header-search">
+        <input type="text" id="searchInput" placeholder="ابحث في صور وبضاعة اليوم بالاسم..." autocomplete="off" />
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-header btn-track" id="trackNavBtn" title="تتبع طلباتك السابقة">
+          <span>📦</span> متابعة طلبي
+          <span class="track-count-badge" id="myOrdersBadge" style="display: none;">0</span>
+        </button>
+
+        <button class="btn-header btn-cart" id="cartBtn" aria-label="عرض سلة التسوق">
+          <span>🛒</span> السلة
+          <span class="cart-count-badge" id="cartBadge">0</span>
+        </button>
+
+        <a href="/admin/index.html" class="btn-header btn-admin-link" id="adminLink" title="لوحة تحكم صاحب المحل">
+          <span>⚙️</span> صاحب المحل
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+       ══════════════════════════════════════ -->
+  <main class="container">
+    
+    <!-- Hero Banner -->
+    <section class="hero" id="heroSection">
+      <div class="hero-pill">🔥 بضاعة اليوم الحصرية والمعروضة حالياً</div>
+      <h1 class="hero-title">تصفح صور البضاعة واطلبها <span>تصلك لباب بيتك</span></h1>
+      <p class="hero-sub">صور حقيقية لبضاعة اليوم المعروضة في المحل. اختر طلبك وسنقوم بتجهيزه وشحنه إليك فوراً مع تتبع حي لمراحل الطلب.</p>
+    </section>
+
+    <!-- Filters & Sorting Bar -->
+    <section class="controls-bar glass" id="controlsBar">
+      <div class="filter-section">
+        <span class="filter-label">🏷️ الماركة:</span>
+        <div class="pills-group" id="brandPills">
+          <button class="pill-btn active" data-id="">الكل</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <span class="filter-label">📁 الفئة:</span>
+        <div class="pills-group" id="categoryPills">
+          <button class="pill-btn active" data-id="">الكل</button>
+        </div>
+      </div>
+
+      <div class="sort-wrap">
+        <select class="sort-select" id="sortSelect" aria-label="ترتيب المنتجات">
+          <option value="">الترتيب الافتراضي</option>
+          <option value="priceAsc">السعر: من الأقل للأعلى</option>
+          <option value="priceDesc">السعر: من الأعلى للأقل</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Products Catalog Grid -->
+    <section class="products-grid" id="productsGrid" aria-label="قائمة بضاعة اليوم">
+      <!-- Product cards injected dynamically via store.js -->
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════
+       SLIDE-OVER CART DRAWER
+       ══════════════════════════════════════ -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
+    <div class="cart-header">
+      <h3>🛒 سلة المشتريات</h3>
+      <button class="btn-close" id="closeCartBtn" aria-label="إغلاق السلة">&times;</button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <!-- Cart items injected dynamically -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-summary-line">
+        <span>المجموع الفرعي:</span>
+        <span id="cartSubtotal">0.00 ج.م</span>
+      </div>
+      <div class="cart-summary-line">
+        <span>مصاريف الشحن والتوصيل:</span>
+        <span id="cartShipping">0.00 ج.م</span>
+      </div>
+      <div class="cart-summary-line total">
+        <span>الإجمالي النهائي المطلوب:</span>
+        <span id="cartTotal">0.00 ج.م</span>
+      </div>
+      <div class="upon-request-note" id="uponRequestNote" style="display: none;">
+        💡 ملاحظة: بعض الأصناف "السعر عند الطلب"، وسيقوم صاحب المحل بتأكيد السعر النهائي معك هاتفياً.
+      </div>
+      <button class="btn-checkout" id="checkoutBtn" disabled>
+        <span>إتمام وتأكيد الطلب الآن</span> 🚀
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       CHECKOUT MODAL
+       ══════════════════════════════════ -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>📦 بيانات التوصيل وتأكيد الطلب</h2>
+        <button class="btn-close" id="closeCheckoutBtn" aria-label="إغلاق">&times;</button>
+      </div>
+
+      <form id="checkoutForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">الاسم الأول <span class="required-star">*</span></label>
+            <input type="text" id="firstName" required placeholder="مثال: أحمد" />
+          </div>
+          <div class="form-group">
+            <label for="lastName">اسم العائلة <span class="required-star">*</span></label>
+            <input type="text" id="lastName" required placeholder="مثال: محمود" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">
+            📱 رقم الهاتف للتوصيل <span class="required-star">*</span>
+            <small style="color: var(--accent); font-weight: normal;">(هام جداً لتواصل مندوب التوصيل معك)</small>
+          </label>
+          <input type="tel" id="phone" required placeholder="مثال: 01012345678" pattern="01[0-9]{9}" title="يرجى إدخال رقم محمول صحيح مكون من 11 رقم" />
+        </div>
+
+        <div class="form-group">
+          <label for="street">
+            🏠 العنوان بالتفصيل (اسم الشارع، رقم العمارة، رقم الشقة، علامة مميزة) <span class="required-star">*</span>
+          </label>
+          <input type="text" id="street" required placeholder="شارع التحرير، عمارة 15، الدور 3، بجوار صيدلية العزبي" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">المدينة / المنطقة <span class="required-star">*</span></label>
+            <input type="text" id="city" required placeholder="مثال: الدقي أو المعادي" />
+          </div>
+          <div class="form-group">
+            <label for="country">المحافظة / الدولة <span class="required-star">*</span></label>
+            <input type="text" id="country" required value="القاهرة، مصر" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>🚚 اختر طريقة الشحن والتوصيل المناسبة:</label>
+          <div class="delivery-options" id="deliveryList">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+
+        <div class="checkout-submit-wrap">
+          <button type="submit" class="btn-checkout" id="submitOrderBtn">
+            <span>تأكيد الطلب وإرساله للمحل فوراً</span> 🚀
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ORDER CONFIRMATION & LIVE TRACKING MODAL
+       ══════════════════════════════════════ -->
+  <div class="modal-overlay" id="trackingModal">
+    <div class="modal-card modal-tracking">
+      <div class="modal-header">
+        <h3 id="trackingModalHeader">📦 متابعة حالة الطلب والشحن</h3>
+        <button class="btn-close" id="closeTrackingBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Success Banner -->
+        <div class="tracker-header-box" id="trackerHeaderBox">
+          <div class="success-icon-wrap" id="trackerIcon">🎉</div>
+          <h2 id="trackerTitle">تم استلام طلبك بنجاح!</h2>
+          <p id="trackerSubtitle">طلبك الآن مسجل لدى صاحب المحل، يمكنك متابعة مراحل تجهيزه وشحنه وتوصيله لحظة بلحظة أدناه.</p>
+          <div class="order-id-badge" id="trackingOrderId">#0000</div>
+        </div>
+
+        <!-- Visual Step Tracker -->
+        <div class="timeline-container">
+          <div class="timeline-step" id="stepReceived">
+            <div class="step-bullet">1</div>
+            <div class="step-content">
+              <strong>📝 تم استلام الطلب</strong>
+              <p>تم إرسال تفاصيل طلبك للمحل وبانتظار المراجعة.</p>
+              <span class="step-time" id="stepTimeReceived"></span>
+            </div>
+          </div>
+
+          <div class="timeline-step" id="stepAccepted">
+            <div class="step-bullet">2</div>
+            <div class="step-content">
+              <strong>✅ تم قبول الطلب</strong>
+              <p>قام صاحب المحل بقبول طلبك وجاري تجهيز البضاعة بعناية.</p>
+              <span class="step-time" id="stepTimeAccepted"></span>
+            </div>
+          </div>
+
+          <div class="timeline-step" id="stepShipped">
+            <div class="step-bullet">3</div>
+            <div class="step-content">
+              <strong>🚚 جاري الشحن والتوصيل</strong>
+              <p>طلبك الآن مع مندوب الشحن وفي الطريق إلى عنوانك.</p>
+              <span class="step-time" id="stepTimeShipped"></span>
+            </div>
+          </div>
+
+          <div class="timeline-step" id="stepDelivered">
+            <div class="step-bullet">4</div>
+            <div class="step-content">
+              <strong>📦 تم التسليم بنجاح</strong>
+              <p>تم تسليم الطلب لك واستلام الشحنة. نتمنى لك تجربة ممتعة!</p>
+              <span class="step-time" id="stepTimeDelivered"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancelled notification if applicable -->
+        <div class="cancelled-banner" id="cancelledBanner" style="display: none;">
+          <h4>❌ تم إلغاء هذا الطلب</h4>
+          <p>تم إلغاء الطلب من قبل إدارة المحل. يرجى التواصل عبر واتساب لمعرفة السبب أو إعادة الطلب.</p>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="tracker-order-summary glass" id="trackerOrderSummary">
+          <h4>📋 ملخص الطلب وعنوان التوصيل</h4>
+          <div id="trackerSummaryContent"></div>
+        </div>
+
+        <!-- Tracking Actions -->
+        <div class="tracker-actions">
+          <button class="btn-refresh-status" id="refreshStatusBtn">
+            🔄 تحديث حالة الطلب الآن
+          </button>
+          <a href="#" target="_blank" class="btn-wa-track" id="trackWhatsAppBtn">
+            💬 تواصل مع المحل عبر واتساب
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MY RECENT ORDERS MODAL (PUBLIC LOOKUP)
+       ══════════════════════════════════════ -->
+  <div class="modal-overlay" id="myOrdersModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📦 طلباتي ومتابعة الشحنات</h3>
+        <button class="btn-close" id="closeMyOrdersBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="order-lookup-bar">
+          <input type="number" id="lookupOrderIdInput" placeholder="أدخل رقم الطلب مباشرة (مثال: 12)..." />
+          <button class="btn-primary" id="btnLookupOrder">🔍 تتبع</button>
+        </div>
+
+        <div class="recent-orders-list" id="recentOrdersList">
+          <!-- Recent orders list injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="lightbox-overlay" id="lightboxModal">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img id="lightboxImg" src="" alt="تكبير صورة البضاعة" />
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/store.js"></script>
+</body>
+</html>

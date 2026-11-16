@@ -1,0 +1,262 @@
+{
+  "info": {
+    "_postman_id": "snapshop-api-collection-v1",
+    "name": "SnapShop E-Commerce API",
+    "description": "Complete Postman collection for SnapShop E-Commerce Web API covering Authentication, Products, Redis Basket, Orders, Payments, and Admin operations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:7205" },
+    { "key": "adminToken", "value": "" },
+    { "key": "customerToken", "value": "" },
+    { "key": "basketId", "value": "basket_test_123" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & Accounts",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('adminToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@snapshop.com\",\n  \"password\": \"Admin$123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Accounts/login", "host": ["{{baseUrl}}"], "path": ["api", "Accounts", "login"] }
+          }
+        },
+        {
+          "name": "Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('customerToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@snapshop.com\",\n  \"password\": \"Pa$$w0rd\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Accounts/login", "host": ["{{baseUrl}}"], "path": ["api", "Accounts", "login"] }
+          }
+        },
+        {
+          "name": "Register New Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Ahmed Ali\",\n  \"email\": \"ahmed@test.com\",\n  \"phoneNumber\": \"01012345678\",\n  \"password\": \"Password$123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/Accounts/register", "host": ["{{baseUrl}}"], "path": ["api", "Accounts", "register"] }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/Accounts", "host": ["{{baseUrl}}"], "path": ["api", "Accounts"] }
+          }
+        },
+        {
+          "name": "Check Email Exists",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/Accounts/emailexists?email=admin@snapshop.com", "host": ["{{baseUrl}}"], "path": ["api", "Accounts", "emailexists"], "query": [{ "key": "email", "value": "admin@snapshop.com" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Products",
+      "item": [
+        {
+          "name": "Get All Products (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products?pageIndex=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["api", "products"], "query": [{ "key": "pageIndex", "value": "1" }, { "key": "pageSize", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"] }
+          }
+        },
+        {
+          "name": "Get Brands",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/brands", "host": ["{{baseUrl}}"], "path": ["api", "products", "brands"] }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/categories", "host": ["{{baseUrl}}"], "path": ["api", "products", "categories"] }
+          }
+        },
+        {
+          "name": "Create Product (Admin Form-Data with Image)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "Name", "value": "حذاء جري نايكي أصلي", "type": "text" },
+                { "key": "Description", "value": "حذاء خفيف وعالي الجودة لبضاعة اليوم", "type": "text" },
+                { "key": "Price", "value": "450.00", "type": "text" },
+                { "key": "CategoryId", "value": "1", "type": "text" },
+                { "key": "BrandId", "value": "1", "type": "text" },
+                { "key": "Image", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"] }
+          }
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Basket (Redis)",
+      "item": [
+        {
+          "name": "Create Or Update Basket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{basketId}}\",\n  \"items\": [\n    {\n      \"id\": 1,\n      \"name\": \"منتج تجريبي\",\n      \"description\": \"وصف تجريبي\",\n      \"price\": 199.99,\n      \"quantity\": 2,\n      \"pictureUrl\": \"/uploads/test.jpg\",\n      \"brand\": \"Nike\",\n      \"category\": \"أحذية\"\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/basket", "host": ["{{baseUrl}}"], "path": ["api", "basket"] }
+          }
+        },
+        {
+          "name": "Get Basket",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/basket?id={{basketId}}", "host": ["{{baseUrl}}"], "path": ["api", "basket"], "query": [{ "key": "id", "value": "{{basketId}}" }] }
+          }
+        },
+        {
+          "name": "Delete Basket",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/basket?id={{basketId}}", "host": ["{{baseUrl}}"], "path": ["api", "basket"], "query": [{ "key": "id", "value": "{{basketId}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Delivery & Orders",
+      "item": [
+        {
+          "name": "Get Delivery Methods",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/orders/deliveryMethods", "host": ["{{baseUrl}}"], "path": ["api", "orders", "deliveryMethods"] }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"basketId\": \"{{basketId}}\",\n  \"deliveryMethodId\": 1,\n  \"shippingAddress\": {\n    \"firstName\": \"أحمد\",\n    \"lastName\": \"السيد\",\n    \"street\": \"شارع التحرير\",\n    \"city\": \"القاهرة\",\n    \"country\": \"مصر\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api", "orders"] }
+          }
+        },
+        {
+          "name": "Get Current Customer Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api", "orders"] }
+          }
+        },
+        {
+          "name": "Get All Orders (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/orders/all", "host": ["{{baseUrl}}"], "path": ["api", "orders", "all"] }
+          }
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/orders/1/status?status=Shipped", "host": ["{{baseUrl}}"], "path": ["api", "orders", "1", "status"], "query": [{ "key": "status", "value": "Shipped" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Payments & Health",
+      "item": [
+        {
+          "name": "Create or Update Payment Intent (Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/{{basketId}}", "host": ["{{baseUrl}}"], "path": ["api", "payments", "{{basketId}}"] }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
