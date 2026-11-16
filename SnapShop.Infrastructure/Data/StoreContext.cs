@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +22,12 @@ namespace SnapShop.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductBrand> ProductBrands { get; set; }
-        public DbSet<ProductCategory> ProductCategories { get; set; }
-        public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<ProductBrand> ProductBrands { get; set; } = null!;
+        public DbSet<ProductCategory> ProductCategories { get; set; } = null!;
+        public DbSet<DeliveryMethod> DeliveryMethods { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
     }
 }

@@ -1,4 +1,4 @@
-﻿using SnapShop.Core.Entities;
+using SnapShop.Core.Entities;
 using SnapShop.Core.Repositories.Contract;
 using StackExchange.Redis;
 using System;
@@ -26,7 +26,7 @@ namespace SnapShop.Infrastructure
         public async Task<CustomerBasket?> GetBasketAsync(string basketId)
         {
             var basket = await _database.StringGetAsync(basketId);
-            return basket.IsNullOrEmpty ? null : JsonSerializer.Deserialize<CustomerBasket>(basket);
+            return basket.IsNullOrEmpty ? null : JsonSerializer.Deserialize<CustomerBasket>(basket.ToString());
         }
 
         public async Task<CustomerBasket?> UpdateBasketAsync(CustomerBasket basket)

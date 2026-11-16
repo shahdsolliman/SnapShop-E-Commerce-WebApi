@@ -71,13 +71,20 @@ namespace SnapShop.API.Extensions
 
         private static IServiceCollection AddDbContextServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<StoreContext>(options => options/*.UseLazyLoadingProxies()*/.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<StoreContext>(options => options.UseSqlServer(connectionString));
 
             return services;
         }
         private static IServiceCollection AddIdentityDbContextServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
+            var connectionString = configuration.GetConnectionString("IdentityConnection");
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                // Fallback to DefaultConnection if only one database is provisioned (e.g. on shared hosting)
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(connectionString));
 
             return services;
         }
@@ -86,7 +93,13 @@ namespace SnapShop.API.Extensions
         {
             services.AddSingleton<IConnectionMultiplexer>(c =>
             {
-                var connection = ConfigurationOptions.Parse(configuration.GetConnectionString("Redis"), true);
+                var redisConn = configuration.GetConnectionString("Redis");
+                if (string.IsNullOrWhiteSpace(redisConn))
+                {
+                    redisConn = "localhost:6379";
+                }
+                var connection = ConfigurationOptions.Parse(redisConn, true);
+                connection.AbortOnConnectFail = false;
                 return ConnectionMultiplexer.Connect(connection);
             });
             return services;

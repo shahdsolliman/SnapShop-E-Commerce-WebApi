@@ -1,0 +1,30 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# XML, JSON, YAML project files
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+# C# files
+[*.cs]
+# Standard C# formatting rules
+csharp_indent_braces = false
+csharp_indent_switch_labels = true
+csharp_new_line_before_open_brace = all
+csharp_space_after_cast = false
+csharp_space_around_binary_operators = before_and_after
+dotnet_sort_system_directives_first = true

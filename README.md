@@ -1,15 +1,16 @@
 # 🛒 SnapShop - E-Commerce Web API & Admin Dashboard
 
 [![.NET](https://img.shields.io/badge/.NET-6.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![CI Pipeline](https://github.com/shahdsolliman/SnapShop-E-Commerce-WebApi/actions/workflows/ci.yml/badge.svg)](https://github.com/shahdsolliman/SnapShop-E-Commerce-WebApi/actions/workflows/ci.yml)
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-blue.svg)](https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures#clean-architecture)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Redis](https://img.shields.io/badge/Redis-Caching-DC382D?logo=redis&logoColor=white)](https://redis.io/)
 [![Stripe](https://img.shields.io/badge/Stripe-Payments-008CDD?logo=stripe&logoColor=white)](https://stripe.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
 
-A scalable, secure, and production-ready E-Commerce RESTful Web API built with **ASP.NET Core 6** following **Clean Architecture (Onion Architecture)** and Domain-Driven Design principles.
+A scalable, secure, and production-ready E-Commerce RESTful Web API built with **ASP.NET Core 6** following **Clean Architecture (Onion Architecture)**, Domain-Driven Design principles, and enterprise security standards.
 
-Includes a complete **Admin Dashboard** for shop owners to upload daily product images, manage inventory, track orders, and process payments securely via Stripe.
+Includes a complete **Arabic RTL Glassmorphism Admin Dashboard** for shop owners to manage products, upload high-resolution media, track customer orders in real-time, and process payments securely via **Stripe**.
 
 ---
 
@@ -18,26 +19,24 @@ Includes a complete **Admin Dashboard** for shop owners to upload daily product 
 ```
 SnapShop-E-Commerce-WebApi/
 ├── SnapShop.Core/               # Domain Layer (Enterprise Business Rules)
-│   ├── Entities/                # Domain models (Product, Order, Basket, Identity)
-│   ├── Repositories.Contract/   # Repository & Unit of Work interfaces
-│   ├── Services.Contract/       # Business service contracts (Order, Payment, Token)
-│   └── Specifications/          # Specification Pattern for dynamic querying
-│       ├── ProductSpecs/        # Product filtering, sorting, pagination
-│       └── OrderSpecs/          # Order retrieval & payment intent specs
+│   ├── Entities/                # Product, Order, CustomerBasket, Identity (AppUser)
+│   ├── Repositories.Contract/   # IGenericRepository, IBasketRepository, IUnitOfWork
+│   ├── Services.Contract/       # IOrderService, IPaymentService, ITokenService
+│   └── Specifications/          # Dynamic filtering, sorting, pagination specifications
 │
 ├── SnapShop.Application/        # Application Layer (Application Business Rules)
-│   ├── OrderService.cs          # Order lifecycle & delivery calculations
+│   ├── OrderService.cs          # Order calculations, lifecycle & delivery methods
 │   ├── PaymentService.cs        # Stripe PaymentIntent creation & webhooks
-│   └── TokenService.cs          # JWT token generation with Role claims
+│   └── TokenService.cs          # JWT token generation with role claims & UTC expiry
 │
 ├── SnapShop.Infrastructure/     # Infrastructure Layer (Data & External Services)
-│   ├── Data/                    # EF Core StoreContext, Fluent API configurations
-│   ├── Identity/                # AppIdentityDbContext, migrations & automatic seeding
+│   ├── Data/                    # StoreContext (Products, Brands, Categories, Orders)
+│   ├── Identity/                # AppIdentityDbContext (ASP.NET Core Identity & Roles)
 │   ├── GenericRepository.cs     # Specification-ready Generic Repository
 │   ├── BasketRepository.cs      # Distributed caching via Redis
 │   └── UnitOfWork.cs            # Unit of Work transaction management
 │
-└── SnapShop.API/                # Presentation Layer (REST API & Admin Dashboard)
+└── SnapShop.API/                # Presentation Layer (REST API & UI)
     ├── Controllers/             # Products, Orders, Basket, Accounts, Payments
     ├── Dtos/                    # Strongly-typed Request & Response DTOs
     ├── Errors/                  # Standardized API response & exception handling
@@ -47,7 +46,7 @@ SnapShop-E-Commerce-WebApi/
     └── wwwroot/
         ├── admin/               # Arabic RTL Glassmorphism Admin Dashboard
         │   ├── index.html       # Products management & daily image upload
-        │   ├── style.css        # Premium dark mode glassmorphism UI
+        │   ├── style.css        # Premium dark glassmorphism UI
         │   └── app.js           # JWT authentication & multipart upload
         └── uploads/             # Static file storage for product images
 ```
@@ -58,20 +57,22 @@ SnapShop-E-Commerce-WebApi/
 
 - **🛡️ Identity & Role-Based Authorization (RBAC)**:
   - Custom JWT tokens with embedded claims and role verification (`Admin`, `Customer`).
-  - Automatic migration and role seeding (`admin@snapshop.com` / `Admin$123`).
+  - Configurable Admin credentials with fallback demo accounts for evaluation.
+  - Strict password policy enforced via ASP.NET Core Identity.
   - Role-protected administrative endpoints.
 
 - **🖼️ Product Management & Media Upload**:
   - Multipart form upload with image validation (format, max size, GUID randomization).
   - Search, sort, brand/category filtering with pagination via the **Specification Pattern**.
-  - Admin endpoints to create and remove products along with their physical media.
+  - Admin endpoints to create and remove products along with physical media cleanup.
 
 - **⚡ High-Performance Redis Caching**:
   - In-memory shopping basket storage backed by StackExchange.Redis.
+  - Automatic reconnection (`AbortOnConnectFail = false`) for high availability.
   - TTL-based cache expiration for temporary shopper baskets.
 
 - **💳 Stripe Payment Gateway**:
-  - PaymentIntent generation and webhook processing for order status updates.
+  - Secure PaymentIntent generation and webhook processing with cryptographic signature verification.
 
 - **📊 Modern Admin Dashboard**:
   - Clean Arabic RTL UI with live stats, instant image preview, and toast notifications.
@@ -81,10 +82,27 @@ SnapShop-E-Commerce-WebApi/
   - Structured logging with **Serilog**.
   - Health check endpoint at `/health`.
   - Swagger / OpenAPI documentation with JWT Bearer authentication support.
+  - Debug endpoints automatically excluded in Release builds (`#if DEBUG`).
+
 - **🧪 Automated Unit Testing**:
   - Comprehensive unit test suite built with **xUnit**, **Moq**, and **FluentAssertions**.
   - 100% passing tests covering Order creation, Specification queries, and Domain entities.
-  - Run with a single command: `dotnet test`.
+  - Automated CI execution via **GitHub Actions**.
+
+---
+
+## 🗄️ Database Architecture
+
+SnapShop utilizes two independent EF Core DbContexts:
+
+| DbContext | Primary Tables | Connection String Key |
+|:----------|:---------------|:----------------------|
+| **`StoreContext`** | `Products`, `ProductBrands`, `ProductCategories`, `DeliveryMethods`, `Orders`, `OrderItems` | `DefaultConnection` |
+| **`AppIdentityDbContext`** | `AspNetUsers`, `AspNetRoles`, `AspNetUserClaims`, `AspNetUserRoles` | `IdentityConnection` |
+
+> [!NOTE]
+> **Single Database Support (e.g., MonsterASP.NET)**:
+> In environments where only one database is available, `IdentityConnection` automatically falls back to `DefaultConnection`. Tables do not conflict, allowing both contexts to run safely on a single database.
 
 ---
 
@@ -92,40 +110,33 @@ SnapShop-E-Commerce-WebApi/
 
 ### Prerequisites
 - [.NET 6.0 SDK or later](https://dotnet.microsoft.com/download)
-- [SQL Server](https://www.microsoft.com/sql-server)
-- [Redis](https://redis.io/) (or run via Docker)
+- [SQL Server](https://www.microsoft.com/sql-server) (LocalDB, Express, or Docker)
+- [Redis](https://redis.io/) (or Docker)
 
-### Option 1: Running Locally
+---
+
+### Option 1: Running Locally with .NET CLI
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/SnapShop-E-Commerce-WebApi.git
+   git clone https://github.com/shahdsolliman/SnapShop-E-Commerce-WebApi.git
    cd SnapShop-E-Commerce-WebApi
    ```
 
-2. **Configure `appsettings.json`**:
-   Update `SnapShop.API/appsettings.json` with your connection strings:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=SnapShopDb;Trusted_Connection=True;MultipleActiveResultSets=true",
-       "IdentityConnection": "Server=localhost;Database=SnapShopIdentityDb;Trusted_Connection=True;MultipleActiveResultSets=true",
-       "Redis": "localhost:6379"
-     },
-     "JWT": {
-       "key": "your-super-secret-key-at-least-32-characters-long",
-       "validIssuer": "https://localhost:7205",
-       "validAudience": "MySecuredAPIUsers",
-       "DurationInDays": "30"
-     }
-   }
+2. **Configure User Secrets (Recommended for Local Dev)**:
+   ```bash
+   cd SnapShop.API
+   dotnet user-secrets init
+   dotnet user-secrets set "JWT:key" "YourSuperSecretKeyAtLeast32CharactersLong!"
+   dotnet user-secrets set "StripeSettings:SecretKey" "sk_test_your_stripe_key"
+   dotnet user-secrets set "StripeSettings:WebhookSecret" "whsec_your_webhook_secret"
    ```
 
 3. **Build & Run**:
    ```bash
-   dotnet restore
-   dotnet build
-   dotnet run --project SnapShop.API
+   dotnet restore ../SnapShop.Solution.sln
+   dotnet build ../SnapShop.Solution.sln
+   dotnet run
    ```
 
 4. **Access the Application**:
@@ -137,22 +148,66 @@ SnapShop-E-Commerce-WebApi/
 
 ### Option 2: Running with Docker Compose
 
-Run the API, SQL Server 2022, and Redis with a single command:
-
-```bash
-docker compose up -d
-```
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit `.env` with your secure passwords.
+3. Start all services (SQL Server 2022, Redis 7, and Web API):
+   ```bash
+   docker compose up -d
+   ```
 
 ---
 
 ## 🔐 Default Admin Credentials
 
-Upon initial launch, database migrations run automatically and seed the default administrator account:
+Upon initial launch, database migrations run automatically and seed the default accounts:
 
 | Role | Email | Password |
-| :--- | :--- | :--- |
+|:-----|:------|:---------|
 | **Admin** | `admin@snapshop.com` | `Admin$123` |
 | **Customer** | `demo@snapshop.com` | `Pa$$w0rd` |
+
+> [!IMPORTANT]
+> For production environments, override these credentials by setting the `AdminUser__Email` and `AdminUser__Password` environment variables.
+
+---
+
+## ☁️ Deployment Guide (MonsterASP.NET / IIS)
+
+1. **Database Setup**:
+   - Create a database in your hosting control panel (e.g. `db80430`).
+   - Copy the SQL Connection String.
+
+2. **Environment Variables**:
+   Configure the following in the host portal or `web.config`:
+   - `ConnectionStrings__DefaultConnection`: `<your-db-connection-string>`
+   - `JWT__key`: `<at-least-32-character-secret>`
+   - `JWT__validIssuer`: `https://your-domain.com`
+   - `JWT__validAudience`: `MySecuredAPIUsers`
+   - `AdminUser__Email`: `<your-admin-email>`
+   - `AdminUser__Password`: `<your-secure-admin-password>`
+   - `StripeSettings__SecretKey`: `<your-stripe-secret-key>`
+   - `StripeSettings__WebhookSecret`: `<your-stripe-webhook-secret>`
+
+3. **Publish & Deploy**:
+   ```bash
+   dotnet publish SnapShop.API/SnapShop.API.csproj -c Release -o ./publish
+   ```
+   Upload the contents of `./publish` to your hosting root directory. Migrations and seed data execute automatically upon startup.
+
+---
+
+## 🧪 Testing
+
+Run the automated test suite with:
+
+```bash
+dotnet test SnapShop.Solution.sln --configuration Release
+```
+
+All 17 tests validate domain entity rules, dynamic specifications, and order lifecycle operations.
 
 ---
 
