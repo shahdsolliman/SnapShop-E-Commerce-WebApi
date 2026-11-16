@@ -26,9 +26,28 @@ namespace SnapShop.API.Extensions
             .AddEntityFrameworkStores<AppIdentityDbContext>();
 
             var jwtKey = configuration["JWT:key"];
-            if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.StartsWith("SET_VIA"))
+            if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.StartsWith("SET_VIA") || Encoding.UTF8.GetByteCount(jwtKey) < 32)
             {
-                jwtKey = "SnapShopDefaultDevSecretKey2026!MustBe32Bytes";
+                throw new InvalidOperationException(
+                    "JWT:key is not configured or is shorter than 32 bytes (256 bits). " +
+                    "Please set a secure key via User Secrets in Development (`dotnet user-secrets set \"JWT:key\" \"<key>\"`) " +
+                    "or via Environment Variable (`JWT__key`) in Production.");
+            }
+
+            var validIssuer = configuration["JWT:validIssuer"];
+            if (string.IsNullOrWhiteSpace(validIssuer))
+            {
+                throw new InvalidOperationException(
+                    "JWT:validIssuer is missing in configuration. " +
+                    "Please specify a valid issuer URL in appsettings or environment variables.");
+            }
+
+            var validAudience = configuration["JWT:validAudience"];
+            if (string.IsNullOrWhiteSpace(validAudience))
+            {
+                throw new InvalidOperationException(
+                    "JWT:validAudience is missing in configuration. " +
+                    "Please specify a valid audience in appsettings or environment variables.");
             }
 
             services.AddAuthentication(options =>
@@ -41,12 +60,13 @@ namespace SnapShop.API.Extensions
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = configuration["JWT:validIssuer"],
+                    ValidIssuer = validIssuer,
                     ValidateAudience = true,
-                    ValidAudience = configuration["JWT:validAudience"],
+                    ValidAudience = validAudience,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    ClockSkew = TimeSpan.FromMinutes(5)
                 };
             });
             return services;
