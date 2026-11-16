@@ -160,34 +160,40 @@ SnapShop utilizes two independent EF Core DbContexts:
 
 ---
 
-## 🔐 Default Admin Credentials
+## 🔐 Seed Accounts & Security Configuration
 
-Upon initial launch, database migrations run automatically and seed the default accounts:
+### Local Development Seed (Development Only)
+In development mode (`ASPNETCORE_ENVIRONMENT=Development`), initial launch seeds demo accounts for testing:
 
-| Role | Email | Password |
-|:-----|:------|:---------|
-| **Admin** | `admin@snapshop.com` | `Admin$123` |
-| **Customer** | `demo@snapshop.com` | `Pa$$w0rd` |
+| Role | Email | Password | Scope |
+|:-----|:------|:---------|:------|
+| **Admin** | `admin@snapshop.com` | `Admin$123` | Local Development Only |
+| **Customer** | `demo@snapshop.com` | `Pa$$w0rd` | Local Development Only |
 
-> [!IMPORTANT]
-> For production environments, override these credentials by setting the `AdminUser__Email` and `AdminUser__Password` environment variables.
+> [!CAUTION]
+> **Production Security Rules**:
+> - Demo accounts are **never seeded** in production (`IsProduction() == true`).
+> - Production requires explicit admin credentials via `AdminUser__Email` and `AdminUser__Password`. The application enforces **Fail-Fast** and will refuse to start if these are missing.
+> - Password policy enforces minimum 8 characters, uppercase, lowercase, digit, and special characters.
+> - **Brute-Force Protection**: Account lockout triggers for 15 minutes after 5 consecutive failed attempts.
 
 ---
 
 ## ☁️ Deployment Guide (MonsterASP.NET / IIS)
 
 1. **Database Setup**:
-   - Create a database in your hosting control panel (e.g. `db80430`).
+   - Create a single SQL Server database in your hosting control panel (e.g. `db80430`).
    - Copy the SQL Connection String.
 
 2. **Environment Variables**:
    Configure the following in the host portal or `web.config`:
    - `ConnectionStrings__DefaultConnection`: `<your-db-connection-string>`
-   - `JWT__key`: `<at-least-32-character-secret>`
+   - `JWT__key`: `<at-least-32-byte-secret-key>`
    - `JWT__validIssuer`: `https://your-domain.com`
    - `JWT__validAudience`: `MySecuredAPIUsers`
-   - `AdminUser__Email`: `<your-admin-email>`
-   - `AdminUser__Password`: `<your-secure-admin-password>`
+   - `FrontBaseUrl`: `https://your-frontend-domain.com`
+   - `AdminUser__Email`: `<your-production-admin-email>`
+   - `AdminUser__Password`: `<your-production-admin-password>`
    - `StripeSettings__SecretKey`: `<your-stripe-secret-key>`
    - `StripeSettings__WebhookSecret`: `<your-stripe-webhook-secret>`
 
