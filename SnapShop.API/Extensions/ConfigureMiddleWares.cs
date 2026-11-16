@@ -24,14 +24,17 @@ namespace SnapShop.API.Extensions
             var identityContext = services.GetRequiredService<AppIdentityDbContext>();
             var userManager = services.GetRequiredService<UserManager<AppUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
+            var configuration = services.GetRequiredService<IConfiguration>();
 
             try
             {
                 await _dbContext.Database.MigrateAsync();
                 await StoreContextSeed.SeedAsync(_dbContext);
                 await identityContext.Database.MigrateAsync();
-                await AppIdentityDbContextSeed.SeedRolesAndAdminAsync(roleManager, userManager);
+
+                var adminEmail = configuration["AdminUser:Email"];
+                var adminPassword = configuration["AdminUser:Password"];
+                await AppIdentityDbContextSeed.SeedRolesAndAdminAsync(roleManager, userManager, adminEmail, adminPassword);
             }
             catch (Exception ex)
             {

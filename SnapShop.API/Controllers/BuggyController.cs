@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SnapShop.API.Errors;
 using SnapShop.Infrastructure.Data;
 
+#if DEBUG
 namespace SnapShop.API.Controllers
 {
     [Route("api/[controller]")]
@@ -54,3 +55,4 @@ namespace SnapShop.API.Controllers
 
     }
 }
+#endif

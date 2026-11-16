@@ -27,17 +27,6 @@ namespace SnapShop.API
             webApplicationBuilder.Services.AddApplicationServices(webApplicationBuilder.Configuration);
             webApplicationBuilder.Services.AddIdentityServices(webApplicationBuilder.Configuration);
 
-            // CORS policy for dashboard and clients
-            webApplicationBuilder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
-            });
-
             webApplicationBuilder.Services.AddHealthChecks();
             webApplicationBuilder.Services.AddEndpointsApiExplorer();
 

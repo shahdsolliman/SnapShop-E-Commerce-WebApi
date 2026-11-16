@@ -31,12 +31,25 @@ namespace SnapShop.API.Extensions
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader()
-                     .AllowAnyMethod()
-                     .WithOrigins(configuration["FrontBaseUrl"])
-                     .AllowCredentials();
-                });
+                    var frontBaseUrl = configuration["FrontBaseUrl"];
+                    var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                        ?? (!string.IsNullOrWhiteSpace(frontBaseUrl) ? new[] { frontBaseUrl } : Array.Empty<string>());
 
+                    if (allowedOrigins.Length > 0)
+                    {
+                        policy.WithOrigins(allowedOrigins)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    }
+                    else
+                    {
+                        policy.SetIsOriginAllowed(_ => true)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
+                    }
+                });
             });
 
             return services;

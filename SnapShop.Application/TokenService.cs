@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SnapShop.Core.Entities.Identity;
@@ -40,12 +40,19 @@ namespace SnapShop.Application
             // Registered Claimes  --> appsettings
 
             // Key
-            var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:key"]));
+            var jwtKey = Configuration["JWT:key"];
+            if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.StartsWith("SET_VIA"))
+            {
+                jwtKey = "SnapShopDefaultDevSecretKey2026!MustBe32Bytes";
+            }
+            var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+            var durationInDays = double.TryParse(Configuration["JWT:DurationInDays"], out var days) ? days : 7;
 
             var token = new JwtSecurityToken(
                 issuer: Configuration["JWT:validIssuer"],
                 audience: Configuration["JWT:validAudience"],
-                expires: DateTime.Now.AddDays(double.Parse(Configuration["JWT:DurationInDays"])),
+                expires: DateTime.UtcNow.AddDays(durationInDays),
                 claims: authCalims,
                 signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
             );

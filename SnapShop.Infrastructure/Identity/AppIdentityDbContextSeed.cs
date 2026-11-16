@@ -13,7 +13,9 @@ namespace SnapShop.Infrastructure.Identity
     {
         public static async Task SeedRolesAndAdminAsync(
             RoleManager<IdentityRole> roleManager,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            string? adminEmail = null,
+            string? adminPassword = null)
         {
             // ── 1. Ensure roles exist ──
             string[] roles = { "Admin", "Customer" };
@@ -24,16 +26,19 @@ namespace SnapShop.Infrastructure.Identity
             }
 
             // ── 2. Seed Admin user ──
-            if (await userManager.FindByEmailAsync("admin@snapshop.com") == null)
+            var email = !string.IsNullOrWhiteSpace(adminEmail) ? adminEmail : "admin@snapshop.com";
+            var password = !string.IsNullOrWhiteSpace(adminPassword) ? adminPassword : "Admin$123";
+
+            if (await userManager.FindByEmailAsync(email) == null)
             {
                 var adminUser = new AppUser
                 {
                     DisplayName = "Admin User",
-                    Email = "admin@snapshop.com",
-                    UserName = "admin",
+                    Email = email,
+                    UserName = email.Split('@')[0],
                     PhoneNumber = "01000000001"
                 };
-                var result = await userManager.CreateAsync(adminUser, "Admin$123");
+                var result = await userManager.CreateAsync(adminUser, password);
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(adminUser, "Admin");
             }

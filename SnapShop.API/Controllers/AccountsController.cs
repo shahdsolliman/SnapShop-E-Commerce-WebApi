@@ -48,7 +48,8 @@ namespace SnapShop.API.Controllers
         [HttpPost("register")] // POST: /api/Accounts/register
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if (CheckEmailExists(registerDto.Email).Result.Value)
+            var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
+            if (existingUser != null)
                 return BadRequest(new ApiValidationErrorResponse() { Errors = new[] { "This email address is already registered." } });
 
             var user = new AppUser()
