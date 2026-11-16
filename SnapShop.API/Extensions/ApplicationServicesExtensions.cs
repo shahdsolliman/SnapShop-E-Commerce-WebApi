@@ -27,28 +27,75 @@ namespace SnapShop.API.Extensions
             services.ConfigureInValidResponseServices();
             services.AddRedisServices(configuration);
 
+            var frontBaseUrl = configuration["FrontBaseUrl"];
+            var configuredOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? (!string.IsNullOrWhiteSpace(frontBaseUrl) ? new[] { frontBaseUrl } : Array.Empty<string>());
+
+            var allowedOrigins = configuredOrigins
+                .Where(o => !string.IsNullOrWhiteSpace(o))
+                .Select(o => o.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            if (allowedOrigins.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "CORS: No allowed origins configured. " +
+                    "Set 'FrontBaseUrl' or 'Cors:AllowedOrigins' in appsettings.json or environment variables.");
+            }
+
+            foreach (var origin in allowedOrigins)
+            {
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Invalid origin '{origin}'. Origin must be a valid absolute URI (e.g. 'https://example.com').");
+                }
+
+                if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Invalid scheme '{uri.Scheme}' in origin '{origin}'. Only HTTP and HTTPS schemes are allowed.");
+                }
+
+                if (string.IsNullOrWhiteSpace(uri.Host))
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Origin '{origin}' must contain a valid host.");
+                }
+
+                if (!string.IsNullOrEmpty(uri.UserInfo))
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Origin '{origin}' must not contain user info.");
+                }
+
+                if (!string.IsNullOrEmpty(uri.Query))
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Origin '{origin}' must not contain a query string.");
+                }
+
+                if (!string.IsNullOrEmpty(uri.Fragment))
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Origin '{origin}' must not contain a fragment.");
+                }
+
+                if (uri.AbsolutePath != "/")
+                {
+                    throw new InvalidOperationException(
+                        $"CORS: Origin '{origin}' must not contain a path.");
+                }
+            }
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    var frontBaseUrl = configuration["FrontBaseUrl"];
-                    var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                        ?? (!string.IsNullOrWhiteSpace(frontBaseUrl) ? new[] { frontBaseUrl } : Array.Empty<string>());
-
-                    if (allowedOrigins.Length > 0)
-                    {
-                        policy.WithOrigins(allowedOrigins)
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials();
-                    }
-                    else
-                    {
-                        policy.SetIsOriginAllowed(_ => true)
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials();
-                    }
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
                 });
             });
 
